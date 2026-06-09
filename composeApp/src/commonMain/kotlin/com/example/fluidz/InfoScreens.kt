@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -130,6 +131,16 @@ fun HelpScreen(onBackClick: () -> Unit) {
                 HelpItem("Is my data secure?", "Yes. Fluidz uses industry-standard encryption and biometric authentication (Fingerprint/PIN) to ensure your sensitive health information remains private.")
                 
                 HelpItem("Which emails are monitored?", "Fluidz monitors addresses like video.appointment@va.gov and other official @va.gov notification services.")
+
+                Spacer(modifier = Modifier.height(24.dp))
+                val uriHandler = LocalUriHandler.current
+                Button(
+                    onClick = { uriHandler.openUri("https://github.com/sparku8811/Fluidz/issues/new/choose") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCC5500))
+                ) {
+                    Text("Report an Issue / Suggest Feature", color = Color.Black, fontWeight = FontWeight.ExtraBold)
+                }
             }
         }
     }
