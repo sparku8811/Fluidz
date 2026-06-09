@@ -89,6 +89,13 @@ fun StartScreen(onStartClick: () -> Unit) {
                     color = Color.Black // Black Lettering
                 )
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "100% For Veterans, 100% Made By Veterans",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
         }
     }
 }
@@ -205,6 +212,30 @@ fun MainScreen(
                         "ADD APPOINTMENT", 
                         fontWeight = FontWeight.ExtraBold, // Bolded Subject
                         color = Color.Black // Black Lettering
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { /* TODO: View Upcoming Appointments */ },
+                    modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555)) // Gray
+                ) {
+                    Text(
+                        "VIEW UPCOMING APPOINTMENTS", 
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { /* TODO: View Upcoming Events */ },
+                    modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555)) // Gray
+                ) {
+                    Text(
+                        "VIEW UPCOMING EVENTS", 
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
                     )
                 }
             }

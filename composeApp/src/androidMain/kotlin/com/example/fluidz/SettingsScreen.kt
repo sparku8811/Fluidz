@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -79,6 +80,15 @@ fun SettingsScreen(
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED,
         )
     }
+    var notificationPermissionGranted by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            } else {
+                true
+            }
+        )
+    }
     var smsEnabled by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED,
@@ -109,6 +119,12 @@ fun SettingsScreen(
     ) { permissions ->
         calendarEnabled = (permissions[Manifest.permission.READ_CALENDAR] == true) &&
                 (permissions[Manifest.permission.WRITE_CALENDAR] == true)
+    }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        notificationPermissionGranted = isGranted
     }
 
     val smsPermissionLauncher = rememberLauncherForActivityResult(
@@ -370,7 +386,12 @@ fun SettingsScreen(
                 SettingItem(
                     title = "Push Notifications",
                     checked = pushNotificationsEnabled,
-                ) { checked -> pushNotificationsEnabled = checked }
+                ) { checked -> 
+                    pushNotificationsEnabled = checked 
+                    if (checked && !notificationPermissionGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
                 SettingItem(
                     title = stringResource(R.string.sync_alerts_title),
                     checked = cloudSyncEnabled,

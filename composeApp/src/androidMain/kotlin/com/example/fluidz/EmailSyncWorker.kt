@@ -1,9 +1,13 @@
 package com.example.fluidz
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.ContentValues
 import android.content.Context
+import android.os.Build
 import android.provider.CalendarContract
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.microsoft.graph.models.Message
@@ -15,6 +19,11 @@ import java.util.regex.Pattern
 
 class EmailSyncWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
+
+    companion object {
+        private const val CHANNEL_ID = "fluidz_notifications"
+        private const val NOTIFICATION_ID = 1001
+    }
 
     private var accessToken: String? = null
 
@@ -109,9 +118,35 @@ class EmailSyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
         try {
             cr.insert(CalendarContract.Events.CONTENT_URI, values)
+            sendNotification(context, "New Appointment Captured", "Reason: $reason at $location")
         } catch (e: SecurityException) {
             Log.e("EmailSyncWorker", "Calendar permission missing", e)
         }
+    }
+
+    private fun sendNotification(context: Context, title: String, message: String) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Fluidz Alerts",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications for captured VA appointments"
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
+
+        notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
     private fun extractValue(text: String, pattern: String): String? {
