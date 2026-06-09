@@ -28,6 +28,7 @@ fun App(
     onGoogleSignIn: () -> Unit = {},
     onAppleSignIn: () -> Unit = {},
     settingsContent: @Composable (onBack: () -> Unit) -> Unit,
+    appointmentsContent: @Composable (title: String, type: AppointmentType, onBack: () -> Unit) -> Unit,
 ) {
     var currentScreen by remember { mutableStateOf("start") }
 
@@ -47,16 +48,8 @@ fun App(
                 "about" -> AboutScreen { currentScreen = "main" }
                 "privacy" -> PrivacyPolicyScreen { currentScreen = "main" }
                 "help" -> HelpScreen { currentScreen = "main" }
-                "upcoming_appointments" -> AppointmentsScreen(
-                    title = "Upcoming Appointments",
-                    type = AppointmentType.MEDICAL,
-                    onBackClick = { currentScreen = "main" }
-                )
-                "upcoming_events" -> AppointmentsScreen(
-                    title = "Upcoming Events",
-                    type = AppointmentType.EVENT,
-                    onBackClick = { currentScreen = "main" }
-                )
+                "upcoming_appointments" -> appointmentsContent("Upcoming Appointments", AppointmentType.MEDICAL) { currentScreen = "main" }
+                "upcoming_events" -> appointmentsContent("Upcoming Events", AppointmentType.EVENT) { currentScreen = "main" }
                 "signup" -> SignUpScreen(
                     onBackClick = { currentScreen = "start" },
                     onGoogleSignIn = onGoogleSignIn,

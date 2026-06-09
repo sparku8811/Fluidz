@@ -9,7 +9,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0754a348-7980-4b0e-87da-aa8318140515" name="Changes" comment="1" />
+    <list default="true" id="0754a348-7980-4b0e-87da-aa8318140515" name="Changes" comment="1">
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/example/fluidz/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/example/fluidz/App.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/example/fluidz/AppointmentsScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/example/fluidz/AppointmentsScreen.kt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

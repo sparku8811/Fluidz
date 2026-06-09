@@ -68,6 +68,16 @@ class MainActivity : FragmentActivity() {
                         SettingsScreen(
                             onBackClick = onBack
                         )
+                    },
+                    appointmentsContent = { title, type, onBack ->
+                        val appointments = remember {
+                            AndroidCalendarManager.getFluidzAppointments(this@MainActivity, type)
+                        }
+                        AppointmentsScreen(
+                            title = title,
+                            appointments = appointments,
+                            onBackClick = onBack
+                        )
                     }
                 )
             }

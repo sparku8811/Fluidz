@@ -26,6 +26,13 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
                 Text("Settings Not Implemented for iOS yet")
                 Button(onClick = onBack) { Text("Back") }
             }
+        },
+        appointmentsContent = { title, _, onBack ->
+            AppointmentsScreen(
+                title = title,
+                appointments = emptyList(), // Real iOS calendar sync later
+                onBackClick = onBack
+            )
         }
     )
 }
