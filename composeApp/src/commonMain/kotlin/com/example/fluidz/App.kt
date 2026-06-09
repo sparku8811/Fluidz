@@ -47,6 +47,16 @@ fun App(
                 "about" -> AboutScreen { currentScreen = "main" }
                 "privacy" -> PrivacyPolicyScreen { currentScreen = "main" }
                 "help" -> HelpScreen { currentScreen = "main" }
+                "upcoming_appointments" -> AppointmentsScreen(
+                    title = "Upcoming Appointments",
+                    type = AppointmentType.MEDICAL,
+                    onBackClick = { currentScreen = "main" }
+                )
+                "upcoming_events" -> AppointmentsScreen(
+                    title = "Upcoming Events",
+                    type = AppointmentType.EVENT,
+                    onBackClick = { currentScreen = "main" }
+                )
                 "signup" -> SignUpScreen(
                     onBackClick = { currentScreen = "start" },
                     onGoogleSignIn = onGoogleSignIn,
@@ -216,7 +226,7 @@ fun MainScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { /* TODO: View Upcoming Appointments */ },
+                    onClick = { onNavigate("upcoming_appointments") },
                     modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555)) // Gray
                 ) {
@@ -228,7 +238,7 @@ fun MainScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { /* TODO: View Upcoming Events */ },
+                    onClick = { onNavigate("upcoming_events") },
                     modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555)) // Gray
                 ) {
