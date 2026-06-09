@@ -37,9 +37,7 @@ fun App(
             color = MaterialTheme.colorScheme.background,
         ) {
             when (currentScreen) {
-                "start" -> StartScreen(
-                    onStartClick = { currentScreen = "main" },
-                ) { currentScreen = "signup" }
+                "start" -> StartScreen { currentScreen = "main" }
                 "main" -> MainScreen(
                     onNavigate = { screen -> currentScreen = screen },
                     onAddEvent = onAddEvent,
@@ -60,7 +58,7 @@ fun App(
 }
 
 @Composable
-fun StartScreen(onStartClick: () -> Unit, onSignUpClick: () -> Unit) {
+fun StartScreen(onStartClick: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         FluidBackground()
         Column(
@@ -89,15 +87,6 @@ fun StartScreen(onStartClick: () -> Unit, onSignUpClick: () -> Unit) {
                     text = "START", 
                     fontWeight = FontWeight.ExtraBold, // Bolded Subject
                     color = Color.Black // Black Lettering
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            TextButton(onClick = onSignUpClick) {
-                Text(
-                    text = "New to Fluidz? Sign up here",
-                    color = Color.Black, // Black Lettering
-                    textDecoration = TextDecoration.Underline,
-                    fontWeight = FontWeight.ExtraBold // Bolded Phrase
                 )
             }
         }
