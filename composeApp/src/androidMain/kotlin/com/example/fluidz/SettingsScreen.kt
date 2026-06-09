@@ -59,6 +59,8 @@ fun SettingsScreen(
     var syncedDevices by remember {
         mutableStateOf(DeviceSyncManager.getSyncedDevices(context))
     }
+    var syncKey by remember { mutableStateOf(DeviceSyncManager.getSyncKey(context)) }
+    var joinSyncKey by remember { mutableStateOf("") }
 
     var locationServiceEnabled by remember {
         mutableStateOf(
@@ -302,6 +304,65 @@ fun SettingsScreen(
                             }
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                if (syncKey == null) {
+                    Button(
+                        onClick = { syncKey = DeviceSyncManager.generateNewSyncKey(context) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = accentColor)
+                    ) {
+                        Text("Enable Multi-Device Sync", color = Color.Black, fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = joinSyncKey,
+                        onValueChange = { joinSyncKey = it.uppercase() },
+                        label = { Text("Enter Sync Key from other device") },
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            TextButton(onClick = {
+                                if (joinSyncKey.isNotEmpty()) {
+                                    DeviceSyncManager.setSyncKey(context, joinSyncKey)
+                                    syncKey = joinSyncKey
+                                    Toast.makeText(context, "Sync Linked!", Toast.LENGTH_SHORT).show()
+                                }
+                            }) {
+                                Text("LINK", color = accentColor, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    )
+                } else {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = Color.LightGray.copy(alpha = 0.2f))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Your Active Sync Key:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = syncKey!!, 
+                                fontSize = 24.sp, 
+                                fontWeight = FontWeight.ExtraBold, 
+                                color = accentColor,
+                                letterSpacing = 2.sp
+                            )
+                            Text(
+                                "Enter this code on your other devices (up to 5) to sync your Fluidz schedule.",
+                                fontSize = 11.sp,
+                                color = Color.DarkGray
+                            )
+                            TextButton(
+                                onClick = { 
+                                    DeviceSyncManager.setSyncKey(context, "") 
+                                    syncKey = null
+                                },
+                                contentPadding = PaddingValues(0.dp)
+                            ) {
+                                Text("Disable Sync / Clear Key", color = Color.Red, fontSize = 12.sp)
+                            }
                         }
                     }
                 }
