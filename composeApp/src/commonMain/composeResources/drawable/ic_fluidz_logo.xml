@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Black circular background -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M100,100 m-100,0 a100,100 0 1,1 200,0 a100,100 0 1,1 -200,0" />
+
+    <!-- White "Comic Sans" style Capital F (approximated) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M65,45
+        C60,45 55,50 55,55
+        L55,155
+        C55,160 60,165 65,165
+        C70,165 75,160 75,155
+        L75,115
+        L125,115
+        C130,115 135,110 135,105
+        C135,100 130,95 125,95
+        L75,95
+        L75,65
+        L135,65
+        C140,65 145,60 145,55
+        C145,50 140,45 135,45
+        Z" />
+</vector>
