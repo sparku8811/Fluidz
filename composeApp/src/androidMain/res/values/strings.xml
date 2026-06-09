@@ -26,6 +26,7 @@
     <string name="phone_access">Phone Access</string>
     <string name="calendar_access">Calendar Access</string>
     <string name="auto_capture_mail">Auto-Capture Appointment Mail</string>
+    <string name="auto_capture_sms">Auto-Capture Appointment SMS</string>
     <string name="capturing_from">Monitoring trusted appointment senders</string>
     <string name="open_email">Open Email App</string>
     <string name="open_messaging">Open Messaging App</string>

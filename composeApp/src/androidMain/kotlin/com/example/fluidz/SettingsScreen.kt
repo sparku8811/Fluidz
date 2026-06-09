@@ -44,6 +44,7 @@ fun SettingsScreen(
     var notificationsEnabled by remember { mutableStateOf(value = true) }
     var pushNotificationsEnabled by remember { mutableStateOf(value = true) }
     var autoCaptureEnabled by remember { mutableStateOf(value = false) }
+    var autoCaptureSmsEnabled by remember { mutableStateOf(value = false) }
     var cloudSyncEnabled by remember { mutableStateOf(value = true) }
     var userEmail by remember { 
         mutableStateOf(sharedPrefs.getString("user_email", "") ?: "") 
@@ -78,6 +79,11 @@ fun SettingsScreen(
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED,
         )
     }
+    var smsEnabled by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED,
+        )
+    }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -103,6 +109,13 @@ fun SettingsScreen(
     ) { permissions ->
         calendarEnabled = (permissions[Manifest.permission.READ_CALENDAR] == true) &&
                 (permissions[Manifest.permission.WRITE_CALENDAR] == true)
+    }
+
+    val smsPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        smsEnabled = (permissions[Manifest.permission.RECEIVE_SMS] == true) &&
+                (permissions[Manifest.permission.READ_SMS] == true)
     }
 
     val accentColor = Color(0xFFCC5500) // Burnt Orange
@@ -178,6 +191,18 @@ fun SettingsScreen(
                         )
                     } else {
                         calendarEnabled = false
+                    }
+                }
+                SettingItem(
+                    title = "SMS Access",
+                    checked = smsEnabled,
+                ) { checked ->
+                    if (checked) {
+                        smsPermissionLauncher.launch(
+                            arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS)
+                        )
+                    } else {
+                        smsEnabled = false
                     }
                 }
 
@@ -364,6 +389,18 @@ fun SettingsScreen(
                         )
                     } else {
                         WorkManager.getInstance(context).cancelUniqueWork("EmailSync")
+                    }
+                }
+                SettingItem(
+                    title = stringResource(R.string.auto_capture_sms),
+                    checked = autoCaptureSmsEnabled,
+                ) { enabled ->
+                    autoCaptureSmsEnabled = enabled
+                    sharedPrefs.edit { putBoolean("auto_capture_sms", enabled) }
+                    if (enabled && !smsEnabled) {
+                        smsPermissionLauncher.launch(
+                            arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS)
+                        )
                     }
                 }
                 if (autoCaptureEnabled && userEmail.isNotEmpty()) {
