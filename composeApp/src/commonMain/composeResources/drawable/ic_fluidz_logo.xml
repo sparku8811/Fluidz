@@ -3,27 +3,29 @@
     android:height="200dp"
     android:viewportWidth="200"
     android:viewportHeight="200">
-    <!-- Black circular background -->
-    <path
-        android:fillColor="#000000"
-        android:pathData="M100,100 m-100,0 a100,100 0 1,1 200,0 a100,100 0 1,1 -200,0" />
 
-    <!-- White "Comic Sans" style Capital F (approximated) -->
+    <!-- Stylized Drop Shape (Deep Blue) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M65,45
-        C60,45 55,50 55,55
-        L55,155
-        C55,160 60,165 65,165
-        C70,165 75,160 75,155
-        L75,115
-        L125,115
-        C130,115 135,110 135,105
-        C135,100 130,95 125,95
-        L75,95
-        L75,65
-        L135,65
-        C140,65 145,60 145,55
-        C145,50 140,45 135,45
+        android:fillColor="#003366"
+        android:pathData="M100,20
+        C100,20 175,100 175,145
+        A75,75 0 1,1 25,145
+        C25,100 100,20 100,20
+        Z" />
+
+    <!-- Minimalist 'Z' representing Fluidz (White) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="14"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M75,115 L125,115 L75,155 L125,155" />
+
+    <!-- Accent Highlight for 'Fluidity' (Sky Blue) -->
+    <path
+        android:fillColor="#64B5F6"
+        android:pathData="M140,80
+        C145,95 140,110 130,120
+        C135,110 135,95 130,85
         Z" />
 </vector>
