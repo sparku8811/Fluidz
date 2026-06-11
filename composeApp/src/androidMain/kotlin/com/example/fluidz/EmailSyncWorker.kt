@@ -66,8 +66,12 @@ class EmailSyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 .get()
 
             messages?.currentPage?.forEach { message ->
-                parseAndAddAppointment(applicationContext, message)
-                pushToSyncedDevices(applicationContext, message)
+                val body = message.body?.content ?: ""
+                // Step 2: Privacy Cleansing
+                if (!isPrivacyRisk(body)) {
+                    parseAndAddAppointment(applicationContext, message)
+                    pushToSyncedDevices(applicationContext, message)
+                }
             }
         } catch (e: Exception) {
             Log.e("EmailSyncWorker", "Error during sync", e)
@@ -75,6 +79,11 @@ class EmailSyncWorker(appContext: Context, workerParams: WorkerParameters) :
         }
 
         return Result.success()
+    }
+
+    private fun isPrivacyRisk(body: String): Boolean {
+        val riskKeywords = listOf("password reset", "verification code", "OTP", "marketing", "unsubscribe", "sale ends")
+        return riskKeywords.any { body.contains(it, ignoreCase = true) }
     }
 
     private fun pushToSyncedDevices(context: Context, message: Message) {
@@ -94,13 +103,14 @@ class EmailSyncWorker(appContext: Context, workerParams: WorkerParameters) :
         val location = extractValue(body, "(?i)(?:location|facility|address|place|room):\\s*(.*)") ?: "TBD"
         val dateStr = extractValue(body, "(?i)(?:date):\\s*(.*)")
         val timeStr = extractValue(body, "(?i)(?:time):\\s*(.*)")
+        val timeZoneStr = extractValue(body, "(?i)(?:timezone|zone):\\s*(.*)") ?: TimeZone.getDefault().id
         val contactInfo = extractValue(body, "(?i)(?:contact|phone|call|email):\\s*(.*)") ?: sender
 
         // Scraping Links
         val meetingLink = extractLink(body)
         val finalLocation = if (meetingLink != null) "$location ($meetingLink)" else location
 
-        val startMillis = calculateMillis(dateStr, timeStr)
+        val startMillis = calculateMillis(dateStr, timeStr, timeZoneStr)
         val endMillis = startMillis + 3600000 
 
         // Detect Intent: Cancellation
@@ -201,12 +211,12 @@ class EmailSyncWorker(appContext: Context, workerParams: WorkerParameters) :
         return if (matcher.find()) matcher.group(1)?.trim() else null
     }
 
-    private fun calculateMillis(date: String?, time: String?): Long {
+    private fun calculateMillis(date: String?, time: String?, timeZone: String? = null): Long {
         if ((date == null) || (time == null)) return System.currentTimeMillis()
         return try {
             val parts = date.split(Regex("[/\\-\\s]"))
             val timeParts = time.split(":")
-            val cal = Calendar.getInstance().apply {
+            val cal = Calendar.getInstance(if (timeZone != null) TimeZone.getTimeZone(timeZone) else TimeZone.getDefault()).apply {
                 if (parts[0].length == 4) { // YYYY-MM-DD
                     set(parts[0].toInt(), parts[1].toInt() - 1, parts[2].toInt())
                 } else { // MM/DD/YYYY

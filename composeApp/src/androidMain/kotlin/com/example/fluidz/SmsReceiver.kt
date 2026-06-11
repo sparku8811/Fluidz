@@ -31,14 +31,31 @@ class SmsReceiver : BroadcastReceiver() {
                 val sender = sms.originatingAddress ?: ""
                 val body = sms.messageBody ?: ""
 
+                // Step 2: Privacy Cleansing (Drop non-scheduling messages)
+                if (isPrivacyRisk(body)) {
+                    Log.d("SmsReceiver", "Privacy Cleansing: Message dropped (potential 2FA or Spam)")
+                    continue
+                }
+
                 Log.d("SmsReceiver", "Received SMS from $sender: $body")
 
-                // Check if it's from a known VA source or contains VA keywords
+                // Step 1: Ingestion & Extraction
                 if (isVaRelated(sender, body)) {
                     parseAndAddSmsAppointment(context, body, sender)
                 }
             }
         }
+    }
+
+    private fun isPrivacyRisk(body: String): Boolean {
+        val riskKeywords = listOf("code", "verification", "OTP", "password", "login", "promo", "deal", "discount")
+        if (riskKeywords.any { body.contains(it, ignoreCase = true) }) return true
+        
+        // Check for common 2FA patterns (4-8 digit numbers in isolation)
+        val otpPattern = Pattern.compile("\\b\\d{4,8}\\b")
+        if (otpPattern.matcher(body).find() && body.length < 50) return true
+
+        return false
     }
 
     private fun isVaRelated(sender: String, body: String): Boolean {
