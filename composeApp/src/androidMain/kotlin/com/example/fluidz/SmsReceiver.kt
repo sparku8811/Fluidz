@@ -1,18 +1,24 @@
 package com.example.fluidz
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.CalendarContract
 import android.provider.Telephony
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import java.util.*
 import java.util.regex.Pattern
 
 class SmsReceiver : BroadcastReceiver() {
 
     private val vaSmsShortCodes = listOf("611611", "838255", "53313") // Common VA/Gov short codes
+    private val CHANNEL_ID = "fluidz_notifications"
+    private val NOTIFICATION_ID = 1002
 
     override fun onReceive(context: Context, intent: Intent) {
         val sharedPrefs = SecurityUtils.getEncryptedSharedPreferences(context)
@@ -76,8 +82,38 @@ class SmsReceiver : BroadcastReceiver() {
         try {
             cr.insert(CalendarContract.Events.CONTENT_URI, values)
             Log.d("SmsReceiver", "Successfully added appointment from SMS")
+            sendNotification(context, "New Appointment Captured (SMS)", "Reason: $reason at $location")
         } catch (e: SecurityException) {
             Log.e("SmsReceiver", "Calendar permission missing", e)
+        }
+    }
+
+    private fun sendNotification(context: Context, title: String, message: String) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Fluidz Alerts",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications for captured VA appointments"
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
+
+        try {
+            notificationManager.notify(NOTIFICATION_ID, notification)
+        } catch (e: SecurityException) {
+            Log.e("SmsReceiver", "Permission missing for notification", e)
         }
     }
 

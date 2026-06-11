@@ -10,5 +10,5 @@ data class Appointment(
 )
 
 enum class AppointmentType {
-    MEDICAL, EVENT
+    MEDICAL, EVENT, PRESCRIPTION
 }

@@ -33,6 +33,7 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
                 appointments = emptyList(), // Real iOS calendar sync later
                 onBackClick = onBack
             )
-        }
+        },
+        dashboardCounts = emptyMap()
     )
 }

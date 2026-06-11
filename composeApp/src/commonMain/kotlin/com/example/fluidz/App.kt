@@ -2,9 +2,14 @@ package com.example.fluidz
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Vaccines
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +35,7 @@ fun App(
     onAppleSignIn: () -> Unit = {},
     settingsContent: @Composable (onBack: () -> Unit) -> Unit,
     appointmentsContent: @Composable (title: String, type: AppointmentType, onBack: () -> Unit) -> Unit,
+    dashboardCounts: Map<AppointmentType, Int> = emptyMap(),
 ) {
     var currentScreen by remember { mutableStateOf("start") }
 
@@ -44,6 +50,7 @@ fun App(
                     onNavigate = { screen -> currentScreen = screen },
                     onAddEvent = onAddEvent,
                     onAddAppointment = onAddAppointment,
+                    counts = dashboardCounts
                 )
                 "settings" -> settingsContent { currentScreen = "main" }
                 "about" -> AboutScreen { currentScreen = "main" }
@@ -51,6 +58,7 @@ fun App(
                 "help" -> HelpScreen { currentScreen = "main" }
                 "upcoming_appointments" -> appointmentsContent("Upcoming Appointments", AppointmentType.MEDICAL) { currentScreen = "main" }
                 "upcoming_events" -> appointmentsContent("Upcoming Events", AppointmentType.EVENT) { currentScreen = "main" }
+                "upcoming_prescriptions" -> appointmentsContent("Prescription Pickups", AppointmentType.PRESCRIPTION) { currentScreen = "main" }
                 "signup" -> SignUpScreen(
                     onBackClick = { currentScreen = "start" },
                     onGoogleSignIn = onGoogleSignIn,
@@ -110,7 +118,8 @@ fun StartScreen(onStartClick: () -> Unit) {
 fun MainScreen(
     onNavigate: (String) -> Unit,
     onAddEvent: () -> Unit,
-    onAddAppointment: () -> Unit
+    onAddAppointment: () -> Unit,
+    counts: Map<AppointmentType, Int>
 ) {
     var showMenu by remember { mutableStateOf(value = false) }
 
@@ -185,17 +194,51 @@ fun MainScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             OasisBackground()
             Column(
-                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                modifier = Modifier.padding(innerPadding).fillMaxSize().verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Top
             ) {
+                Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = "Welcome to your Oasis",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.ExtraBold, // Bolded Phrase
                     color = Color.Black // Black Lettering
                 )
-                Spacer(modifier = Modifier.height(48.dp))
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Dashboard Stacks
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    DashboardCard(
+                        title = "Appointments",
+                        count = counts[AppointmentType.MEDICAL] ?: 0,
+                        icon = Icons.Default.MedicalServices,
+                        color = Color(0xFF003366), // Dark Blue
+                        modifier = Modifier.weight(1f)
+                    ) { onNavigate("upcoming_appointments") }
+                    
+                    DashboardCard(
+                        title = "Events",
+                        count = counts[AppointmentType.EVENT] ?: 0,
+                        icon = Icons.Default.Event,
+                        color = Color(0xFFCC5500), // Burnt Orange
+                        modifier = Modifier.weight(1f)
+                    ) { onNavigate("upcoming_events") }
+                    
+                    DashboardCard(
+                        title = "Prescriptions",
+                        count = counts[AppointmentType.PRESCRIPTION] ?: 0,
+                        icon = Icons.Default.Vaccines,
+                        color = Color(0xFF555555), // Gray
+                        modifier = Modifier.weight(1f)
+                    ) { onNavigate("upcoming_prescriptions") }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = onAddEvent,
                     modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
@@ -243,7 +286,65 @@ fun MainScreen(
                         color = Color.White
                     )
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { onNavigate("upcoming_prescriptions") },
+                    modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555)) // Gray
+                ) {
+                    Text(
+                        "VIEW PRESCRIPTION PICKUPS",
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                }
+                Spacer(modifier = Modifier.height(24.dp))
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DashboardCard(
+    title: String,
+    count: Int,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.height(110.dp),
+        colors = CardDefaults.cardColors(containerColor = color),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = count.toString(),
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White
+            )
+            Text(
+                text = title.uppercase(),
+                fontSize = 8.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

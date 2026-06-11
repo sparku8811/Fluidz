@@ -48,12 +48,10 @@ object AndroidCalendarManager {
                 val provider = extractProvider(description)
                 val dateStr = sdf.format(Date(startTime))
 
-                // Determine if it's medical or event based on keywords or tags in description
-                // For now, we can use a simple check or just allow all for both for the beta
-                val apptType = if (title.contains("Appointment", ignoreCase = true) || description.contains("doctor", ignoreCase = true)) {
-                    AppointmentType.MEDICAL
-                } else {
-                    AppointmentType.EVENT
+                val apptType = when {
+                    title.contains("Prescription", ignoreCase = true) || description.contains("Pharmacy", ignoreCase = true) -> AppointmentType.PRESCRIPTION
+                    title.contains("Appointment", ignoreCase = true) || description.contains("doctor", ignoreCase = true) -> AppointmentType.MEDICAL
+                    else -> AppointmentType.EVENT
                 }
 
                 if (apptType == type) {
@@ -64,6 +62,47 @@ object AndroidCalendarManager {
             }
         }
         return appointments
+    }
+
+    fun getDashboardCounts(context: Context): Map<AppointmentType, Int> {
+        val projection = arrayOf(
+            CalendarContract.Events.TITLE,
+            CalendarContract.Events.DESCRIPTION
+        )
+        val selection = "${CalendarContract.Events.DESCRIPTION} LIKE ?"
+        val selectionArgs = arrayOf("%Automatically imported by Fluidz%")
+
+        val cursor = context.contentResolver.query(
+            CalendarContract.Events.CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
+
+        val counts = mutableMapOf(
+            AppointmentType.MEDICAL to 0,
+            AppointmentType.EVENT to 0,
+            AppointmentType.PRESCRIPTION to 0
+        )
+
+        cursor?.use {
+            val titleIndex = it.getColumnIndex(CalendarContract.Events.TITLE)
+            val descIndex = it.getColumnIndex(CalendarContract.Events.DESCRIPTION)
+
+            while (it.moveToNext()) {
+                val title = it.getString(titleIndex)
+                val description = it.getString(descIndex) ?: ""
+
+                val apptType = when {
+                    title.contains("Prescription", ignoreCase = true) || description.contains("Pharmacy", ignoreCase = true) -> AppointmentType.PRESCRIPTION
+                    title.contains("Appointment", ignoreCase = true) || description.contains("doctor", ignoreCase = true) -> AppointmentType.MEDICAL
+                    else -> AppointmentType.EVENT
+                }
+                counts[apptType] = counts[apptType]!! + 1
+            }
+        }
+        return counts
     }
 
     private fun extractProvider(description: String): String {

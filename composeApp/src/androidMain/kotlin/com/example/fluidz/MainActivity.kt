@@ -38,6 +38,9 @@ class MainActivity : FragmentActivity() {
                 }
             } else {
                 val authManager = remember { AuthManager(this@MainActivity) }
+                val dashboardCounts by produceState(initialValue = emptyMap<AppointmentType, Int>(), key1 = isAppLocked) {
+                    value = AndroidCalendarManager.getDashboardCounts(this@MainActivity)
+                }
                 App(
                     isDarkMode = isDarkMode,
                     onAddEvent = {
@@ -70,15 +73,16 @@ class MainActivity : FragmentActivity() {
                         )
                     },
                     appointmentsContent = { title, type, onBack ->
-                        val appointments = remember {
-                            AndroidCalendarManager.getFluidzAppointments(this@MainActivity, type)
+                        val appointments by produceState(initialValue = emptyList<Appointment>(), key1 = type) {
+                            value = AndroidCalendarManager.getFluidzAppointments(this@MainActivity, type)
                         }
                         AppointmentsScreen(
                             title = title,
                             appointments = appointments,
                             onBackClick = onBack
                         )
-                    }
+                    },
+                    dashboardCounts = dashboardCounts
                 )
             }
         }
