@@ -216,7 +216,24 @@ class EmailSyncWorker(appContext: Context, workerParams: WorkerParameters) :
         return try {
             val parts = date.split(Regex("[/\\-\\s]"))
             val timeParts = time.split(":")
-            val cal = Calendar.getInstance(if (timeZone != null) TimeZone.getTimeZone(timeZone) else TimeZone.getDefault()).apply {
+            
+            // Map common time zone abbreviations to standard IDs
+            val tzId = when (timeZone?.uppercase()) {
+                "BST" -> "Europe/London"
+                "GMT" -> "GMT"
+                "EST" -> "America/New_York"
+                "EDT" -> "America/New_York"
+                "CST" -> "America/Chicago"
+                "CDT" -> "America/Chicago"
+                "MST" -> "America/Denver"
+                "MDT" -> "America/Denver"
+                "PST" -> "America/Los_Angeles"
+                "PDT" -> "America/Los_Angeles"
+                else -> timeZone ?: TimeZone.getDefault().id
+            }
+
+            val sourceTz = TimeZone.getTimeZone(tzId)
+            val cal = Calendar.getInstance(sourceTz).apply {
                 if (parts[0].length == 4) { // YYYY-MM-DD
                     set(parts[0].toInt(), parts[1].toInt() - 1, parts[2].toInt())
                 } else { // MM/DD/YYYY
@@ -225,6 +242,8 @@ class EmailSyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 set(Calendar.HOUR_OF_DAY, timeParts[0].filter { it.isDigit() }.toInt())
                 set(Calendar.MINUTE, timeParts[1].filter { it.isDigit() }.toInt())
             }
+            
+            // Return UTC millis which will be correctly displayed in user's local time by the calendar app
             cal.timeInMillis
         } catch (e: Exception) {
             System.currentTimeMillis()

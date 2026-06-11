@@ -25,6 +25,11 @@ object AndroidCalendarManager {
         val tag = if (isPending) PENDING_TAG else VERIFIED_TAG
         val existingId = findExistingEventId(context, title, startTimeMillis)
 
+        // Step: Buffer Time Auto-Allocation
+        if (!isPending) {
+            allocateTravelBuffer(context, location, startTimeMillis)
+        }
+
         val values = ContentValues().apply {
             put(CalendarContract.Events.TITLE, title)
             put(CalendarContract.Events.EVENT_LOCATION, location)
@@ -62,17 +67,68 @@ object AndroidCalendarManager {
         
         return try {
             val uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId.toLong())
-            val cursor = context.contentResolver.query(uri, arrayOf(CalendarContract.Events.DESCRIPTION), null, null, null)
+            val projection = arrayOf(
+                CalendarContract.Events.TITLE,
+                CalendarContract.Events.EVENT_LOCATION,
+                CalendarContract.Events.DTSTART,
+                CalendarContract.Events.DESCRIPTION
+            )
+            val cursor = context.contentResolver.query(uri, projection, null, null, null)
             cursor?.use {
                 if (it.moveToFirst()) {
-                    val desc = it.getString(0) ?: ""
+                    val title = it.getString(0)
+                    val location = it.getString(1)
+                    val startTime = it.getLong(2)
+                    val desc = it.getString(3) ?: ""
                     values.put(CalendarContract.Events.DESCRIPTION, desc.replace(PENDING_TAG, VERIFIED_TAG))
+                    
+                    // Allocate buffer upon approval
+                    allocateTravelBuffer(context, location, startTime)
                 }
             }
             context.contentResolver.update(uri, values, null, null)
             true
         } catch (e: Exception) {
             false
+        }
+    }
+
+    private fun allocateTravelBuffer(context: Context, destination: String, eventStartTime: Long) {
+        // Find previous event to calculate travel from
+        val projection = arrayOf(CalendarContract.Events.EVENT_LOCATION, CalendarContract.Events.DTEND)
+        val selection = "${CalendarContract.Events.DTEND} <= ? AND ${CalendarContract.Events.DTEND} > ?"
+        val selectionArgs = arrayOf(eventStartTime.toString(), (eventStartTime - 4 * 3600000).toString()) // 4 hour window
+
+        context.contentResolver.query(
+            CalendarContract.Events.CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            "${CalendarContract.Events.DTEND} DESC"
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val lastLocation = cursor.getString(0) ?: return@use
+                val lastEndTime = cursor.getLong(1)
+
+                // Mock travel time: 30 mins if different location
+                if (lastLocation != destination && !destination.contains("Zoom", true)) {
+                    val bufferDuration = 30 * 60 * 1000L // 30 mins
+                    val bufferStart = eventStartTime - bufferDuration
+                    
+                    if (bufferStart >= lastEndTime) {
+                        val bufferValues = ContentValues().apply {
+                            put(CalendarContract.Events.TITLE, "🚗 Travel to Appointment")
+                            put(CalendarContract.Events.EVENT_LOCATION, destination)
+                            put(CalendarContract.Events.DTSTART, bufferStart)
+                            put(CalendarContract.Events.DTEND, eventStartTime)
+                            put(CalendarContract.Events.CALENDAR_ID, 1)
+                            put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
+                            put(CalendarContract.Events.DESCRIPTION, "Fluidz Auto-Allocated Travel Buffer")
+                        }
+                        context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, bufferValues)
+                    }
+                }
+            }
         }
     }
 

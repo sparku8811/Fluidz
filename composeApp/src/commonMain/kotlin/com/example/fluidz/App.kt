@@ -34,7 +34,7 @@ fun App(
     onGoogleSignIn: () -> Unit = {},
     onAppleSignIn: () -> Unit = {},
     settingsContent: @Composable (onBack: () -> Unit) -> Unit,
-    appointmentsContent: @Composable (title: String, type: AppointmentType, onBack: () -> Unit) -> Unit,
+    appointmentsContent: @Composable (title: String, type: AppointmentType, onBack: () -> Unit, onReply: (String) -> Unit) -> Unit,
     dashboardCounts: Map<AppointmentType, Int> = emptyMap(),
 ) {
     var currentScreen by remember { mutableStateOf("start") }
@@ -56,9 +56,9 @@ fun App(
                 "about" -> AboutScreen { currentScreen = "main" }
                 "privacy" -> PrivacyPolicyScreen { currentScreen = "main" }
                 "help" -> HelpScreen { currentScreen = "main" }
-                "upcoming_appointments" -> appointmentsContent("Upcoming Appointments", AppointmentType.MEDICAL) { currentScreen = "main" }
-                "upcoming_events" -> appointmentsContent("Upcoming Events", AppointmentType.EVENT) { currentScreen = "main" }
-                "upcoming_prescriptions" -> appointmentsContent("Prescription Pickups", AppointmentType.PRESCRIPTION) { currentScreen = "main" }
+                "upcoming_appointments" -> appointmentsContent("Upcoming Appointments", AppointmentType.MEDICAL, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
+                "upcoming_events" -> appointmentsContent("Upcoming Events", AppointmentType.EVENT, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
+                "upcoming_prescriptions" -> appointmentsContent("Prescription Pickups", AppointmentType.PRESCRIPTION, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
                 "signup" -> SignUpScreen(
                     onBackClick = { currentScreen = "start" },
                     onGoogleSignIn = onGoogleSignIn,

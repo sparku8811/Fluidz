@@ -92,6 +92,13 @@ class MainActivity : FragmentActivity() {
                                     refreshTrigger++
                                 }
                             },
+                            onReply = { provider ->
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    data = android.net.Uri.parse("smsto:") // Default to SMS
+                                    putExtra("sms_body", "Got it! Added to my calendar, see you then.")
+                                }
+                                startActivity(intent)
+                            },
                             onEdit = { id ->
                                 val intent = Intent(Intent.ACTION_EDIT).apply {
                                     data = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, id.toLong())

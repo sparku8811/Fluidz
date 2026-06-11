@@ -20,6 +20,7 @@ fun AppointmentsScreen(
     appointments: List<Appointment>,
     onBackClick: () -> Unit,
     onApprove: (String) -> Unit = {},
+    onReply: (String) -> Unit = {},
     onEdit: (String) -> Unit = {}
 ) {
     Scaffold(
@@ -60,6 +61,7 @@ fun AppointmentsScreen(
                         AppointmentItem(
                             appointment = appointment,
                             onApprove = onApprove,
+                            onReply = onReply,
                             onEdit = onEdit
                         )
                     }
@@ -73,6 +75,7 @@ fun AppointmentsScreen(
 fun AppointmentItem(
     appointment: Appointment,
     onApprove: (String) -> Unit,
+    onReply: (String) -> Unit,
     onEdit: (String) -> Unit
 ) {
     val alpha = if (appointment.isPending) 0.6f else 1.0f
@@ -138,11 +141,14 @@ fun AppointmentItem(
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(
-                        onClick = { onApprove(appointment.id) },
+                        onClick = { 
+                            onApprove(appointment.id)
+                            onReply(appointment.provider)
+                        },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF003366))
                     ) {
-                        Text("Approve", fontSize = 12.sp, color = Color.White)
+                        Text("Approve & Reply", fontSize = 12.sp, color = Color.White)
                     }
                     OutlinedButton(
                         onClick = { onEdit(appointment.id) },
