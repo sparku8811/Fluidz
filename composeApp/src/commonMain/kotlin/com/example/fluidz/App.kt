@@ -146,46 +146,48 @@ fun MainScreen(
                     containerColor = Color.Transparent,
                     titleContentColor = Color.Black
                 ),
-                actions = {
-                    IconButton(onClick = { showMenu = !showMenu }) {
-                        Icon(
-                            Icons.Default.MoreVert, 
-                            contentDescription = "Menu",
-                            tint = Color.Black // Black Icon
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Settings", fontWeight = FontWeight.Bold, color = Color.Black) },
-                            onClick = { 
-                                showMenu = false
-                                onNavigate("settings")
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("About", fontWeight = FontWeight.Bold, color = Color.Black) },
-                            onClick = { 
-                                showMenu = false
-                                onNavigate("about")
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Privacy Policy", fontWeight = FontWeight.Bold, color = Color.Black) },
-                            onClick = { 
-                                showMenu = false
-                                onNavigate("privacy")
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Help", fontWeight = FontWeight.Bold, color = Color.Black) },
-                            onClick = { 
-                                showMenu = false
-                                onNavigate("help")
-                            }
-                        )
+                navigationIcon = {
+                    Box {
+                        IconButton(onClick = { showMenu = !showMenu }) {
+                            Icon(
+                                Icons.Default.MoreVert, 
+                                contentDescription = "Menu",
+                                tint = Color.Black // Black Icon
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Settings", fontWeight = FontWeight.Bold, color = Color.Black) },
+                                onClick = { 
+                                    showMenu = false
+                                    onNavigate("settings")
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("About", fontWeight = FontWeight.Bold, color = Color.Black) },
+                                onClick = { 
+                                    showMenu = false
+                                    onNavigate("about")
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Help", fontWeight = FontWeight.Bold, color = Color.Black) },
+                                onClick = { 
+                                    showMenu = false
+                                    onNavigate("help")
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Privacy Policy", fontWeight = FontWeight.Bold, color = Color.Black) },
+                                onClick = { 
+                                    showMenu = false
+                                    onNavigate("privacy")
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -218,6 +220,7 @@ fun MainScreen(
                         count = counts[AppointmentType.MEDICAL] ?: 0,
                         icon = Icons.Default.MedicalServices,
                         color = Color(0xFF003366), // Dark Blue
+                        textColor = Color.White,
                         modifier = Modifier.weight(1f)
                     ) { onNavigate("upcoming_appointments") }
                     
@@ -226,6 +229,7 @@ fun MainScreen(
                         count = counts[AppointmentType.EVENT] ?: 0,
                         icon = Icons.Default.Event,
                         color = Color(0xFFCC5500), // Burnt Orange
+                        textColor = Color.Black,
                         modifier = Modifier.weight(1f)
                     ) { onNavigate("upcoming_events") }
                     
@@ -234,6 +238,7 @@ fun MainScreen(
                         count = counts[AppointmentType.PRESCRIPTION] ?: 0,
                         icon = Icons.Default.Vaccines,
                         color = Color(0xFF555555), // Gray
+                        textColor = Color.White,
                         modifier = Modifier.weight(1f)
                     ) { onNavigate("upcoming_prescriptions") }
                 }
@@ -311,6 +316,7 @@ fun DashboardCard(
     count: Int,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     color: Color,
+    textColor: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -328,7 +334,7 @@ fun DashboardCard(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.8f),
+                tint = textColor.copy(alpha = 0.8f),
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -336,13 +342,13 @@ fun DashboardCard(
                 text = count.toString(),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Black,
-                color = Color.White
+                color = textColor
             )
             Text(
                 text = title.uppercase(),
                 fontSize = 8.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
+                color = textColor,
                 textAlign = TextAlign.Center
             )
         }
