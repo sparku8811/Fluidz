@@ -16,6 +16,8 @@ kotlin {
             }
         }
     }
+
+    jvm("desktop")
     
     listOf(
         iosX64(),
@@ -53,6 +55,31 @@ kotlin {
                 implementation(libs.androidx.biometric)
                 implementation(libs.googleAuth)
                 implementation(libs.androidx.security.crypto)
+            }
+        }
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
+        }
+    }
+}
+
+compose.desktop {
+    application {
+        mainClass = "com.example.fluidz.MainKt"
+
+        nativeDistributions {
+            targetFormats(org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Exe)
+            packageName = "Fluidz"
+            packageVersion = "1.1.2"
+            vendor = "Fluidz Development"
+            copyright = "© 2026 Fluidz. All rights reserved."
+
+            windows {
+                shortcut = true
+                menu = true
+                upgradeUuid = "68c926c0-78a4-4416-92c9-f1a7d6d56d78"
             }
         }
     }

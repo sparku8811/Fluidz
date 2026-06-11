@@ -45,36 +45,53 @@ fun PrivacyPolicyScreen(onBackClick: () -> Unit) {
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "Your Privacy is Our Priority",
-                    fontSize = 24.sp,
+                    text = "Privacy Policy",
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Last Updated: June 10, 2026",
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                Text(
+                    text = "Fluidz is built on a foundation of trust and service. We operate under a Zero-Cloud, Zero-Sharing policy. All sensitive data is handled locally on your device.",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
                 
                 PrivacySection(
-                    title = "Absolute Data Security",
-                    content = "At Fluidz, we understand that your health and personal information are sacred. All sensitive data—including your email address and monitored senders—is stored using hardware-backed AES-256 encryption. This means your information is mathematically unreadable to anyone but you."
+                    title = "1. Our Privacy Pledge",
+                    content = "Your health and schedule information are sacred. Your information is never transmitted to our servers or any third-party entities. We process everything right where it belongs: on your device."
                 )
 
                 PrivacySection(
-                    title = "No 3rd Party Sharing",
-                    content = "We have a zero-compromise policy: Your data will NEVER be sold, rented, or shared with 3rd party companies, advertisers, or any external entities. We are here to serve you, not profit from your information."
+                    title = "2. Information Collection & Use",
+                    content = "• Email & SMS: We monitor official VA notifications to extract appointment details via local AI.\n• Privacy Cleansing: Non-scheduling messages (like 2FA codes or spam) are permanently dropped.\n• Calendar: Appointments are placed in a 'Shadow Calendar' and only moved to your primary calendar with your explicit approval."
                 )
 
                 PrivacySection(
-                    title = "No Malicious Use",
-                    content = "Your information is used strictly for the automation of your healthcare schedule. It will never be used for tracking, profiling, or any form of malicious activity."
+                    title = "3. Military-Grade Security",
+                    content = "All sensitive data is protected using hardware-backed AES-256 encryption. Access is guarded by your device's native biometric authentication (Fingerprint, Face ID, or PIN)."
                 )
 
                 PrivacySection(
-                    title = "Zero Active Tracking",
-                    content = "Fluidz does not actively track your location or monitor your device behavior. While the app uses system permissions to integrate with your calendar and location services, this data stays entirely on your device and is never transmitted to our servers."
+                    title = "4. Zero Third-Party Sharing",
+                    content = "We do not sell, rent, or share your personal information with advertisers or data brokers. Fluidz does not use tracking pixels or behavior-profiling algorithms."
                 )
 
                 PrivacySection(
-                    title = "For Veterans, By Veterans",
-                    content = "This app is built on a foundation of trust and service. We hold ourselves to the highest standards of integrity to protect those who have protected us."
+                    title = "5. Multi-Device Sync",
+                    content = "Device syncing is handled via private, randomized Sync Keys. This process is anonymous and does not require an account or email address."
+                )
+
+                PrivacySection(
+                    title = "6. Contact Us",
+                    content = "If you have questions about your data security, please contact the Fluidz development team through our official feedback channels."
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -82,8 +99,10 @@ fun PrivacyPolicyScreen(onBackClick: () -> Unit) {
                     text = "100% SECURE. 100% PRIVATE.",
                     fontWeight = FontWeight.Black,
                     color = Color.Black,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    modifier = Modifier.align(androidx.compose.ui.Alignment.CenterHorizontally)
                 )
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

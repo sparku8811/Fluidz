@@ -166,9 +166,9 @@ fun App(
                     "about" -> AboutScreen { currentScreen = "main" }
                     "privacy" -> PrivacyPolicyScreen { currentScreen = "main" }
                     "help" -> HelpScreen { currentScreen = "main" }
-                    "upcoming_appointments" -> appointmentsContent("Upcoming Appointments", AppointmentType.MEDICAL, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
-                    "upcoming_events" -> appointmentsContent("Upcoming Events", AppointmentType.EVENT, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
-                    "upcoming_prescriptions" -> appointmentsContent("Prescription Pickups", AppointmentType.PRESCRIPTION, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
+                    "upcoming_appointments" -> appointmentsContent("Upcoming Appointments", AppointmentType.MEDICAL, { currentScreen = "main" }) { _ -> /* MainActivity logic */ }
+                    "upcoming_events" -> appointmentsContent("Upcoming Events", AppointmentType.EVENT, { currentScreen = "main" }) { _ -> /* MainActivity logic */ }
+                    "upcoming_prescriptions" -> appointmentsContent("Prescription Pickups", AppointmentType.PRESCRIPTION, { currentScreen = "main" }) { _ -> /* MainActivity logic */ }
                     "signup" -> SignUpScreen(
                         onBackClick = { currentScreen = "start" },
                         onGoogleSignIn = onGoogleSignIn,
