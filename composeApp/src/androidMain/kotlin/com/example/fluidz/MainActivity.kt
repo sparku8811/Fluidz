@@ -75,7 +75,7 @@ class MainActivity : FragmentActivity() {
                             onBackClick = onBack
                         )
                     },
-                    appointmentsContent = { title, type, onBack ->
+                    appointmentsContent = { title, type, onBack, onReply ->
                         var refreshTrigger by remember { mutableStateOf(0) }
                         val appointments by produceState(initialValue = emptyList<Appointment>(), key1 = type, key2 = refreshTrigger) {
                             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -92,13 +92,7 @@ class MainActivity : FragmentActivity() {
                                     refreshTrigger++
                                 }
                             },
-                            onReply = { provider ->
-                                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = android.net.Uri.parse("smsto:") // Default to SMS
-                                    putExtra("sms_body", "Got it! Added to my calendar, see you then.")
-                                }
-                                startActivity(intent)
-                            },
+                            onReply = onReply,
                             onEdit = { id ->
                                 val intent = Intent(Intent.ACTION_EDIT).apply {
                                     data = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, id.toLong())
