@@ -6,7 +6,10 @@ data class Appointment(
     val location: String,
     val dateTime: String,
     val provider: String,
-    val type: AppointmentType
+    val type: AppointmentType,
+    val meetingLink: String? = null,
+    val isPending: Boolean = false,
+    val conflictWith: String? = null
 )
 
 enum class AppointmentType {

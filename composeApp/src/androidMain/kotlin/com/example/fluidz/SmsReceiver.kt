@@ -61,34 +61,50 @@ class SmsReceiver : BroadcastReceiver() {
         val startMillis = calculateMillis(dateStr, timeStr)
         val endMillis = startMillis + 3600000 
 
-        val cr = context.contentResolver
-        val values = ContentValues().apply {
-            put(CalendarContract.Events.DTSTART, startMillis)
-            put(CalendarContract.Events.DTEND, endMillis)
-            put(CalendarContract.Events.TITLE, reason)
-            put(CalendarContract.Events.EVENT_LOCATION, location)
-            put(
-                CalendarContract.Events.DESCRIPTION, 
-                buildString {
-                    append("With: $personBeingSeen\n")
-                    append("Contact: $contactInfo\n")
-                    append("Automatically imported by Fluidz from SMS: $sender")
-                }
-            )
-            put(CalendarContract.Events.CALENDAR_ID, 1)
-            put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
+        // Detect Intent: Cancellation
+        val isCancellation = body.contains("cancel", ignoreCase = true) || 
+                            body.contains("can't make it", ignoreCase = true)
+        
+        if (isCancellation) {
+            val deleted = AndroidCalendarManager.deleteFluidzEvent(context, reason, startMillis)
+            if (deleted) {
+                sendNotification(context, "Appointment Cancelled", "Removed: $reason from your calendar.")
+            }
+            return
         }
 
-        try {
-            cr.insert(CalendarContract.Events.CONTENT_URI, values)
-            Log.d("SmsReceiver", "Successfully added appointment from SMS")
-            sendNotification(context, "New Appointment Captured (SMS)", "Reason: $reason at $location")
-        } catch (e: SecurityException) {
-            Log.e("SmsReceiver", "Calendar permission missing", e)
+        // Handle Upsert (Create or Update)
+        val description = buildString {
+            append("With: $personBeingSeen\n")
+            append("Contact: $contactInfo\n")
+            append("Automatically imported by Fluidz from SMS: $sender")
+        }
+
+        val conflictWith = AndroidCalendarManager.checkForConflict(context, startMillis, endMillis)
+        val finalTitle = if (conflictWith != null) "[CONFLICT] $reason" else reason
+
+        val eventId = AndroidCalendarManager.upsertFluidzEvent(
+            context = context,
+            title = finalTitle,
+            location = location,
+            description = description,
+            startTimeMillis = startMillis,
+            endTimeMillis = endMillis,
+            isPending = true
+        )
+
+        if (eventId != -1L) {
+            Log.d("SmsReceiver", "Successfully processed appointment from SMS")
+            val notificationBody = if (conflictWith != null) {
+                "⚠️ Conflict with '$conflictWith'. Review required."
+            } else {
+                "$reason at $location"
+            }
+            sendNotification(context, "New Draft Appointment (SMS)", notificationBody, eventId.toString())
         }
     }
 
-    private fun sendNotification(context: Context, title: String, message: String) {
+    private fun sendNotification(context: Context, title: String, message: String, eventId: String? = null) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -102,16 +118,27 @@ class SmsReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
-            .build()
+
+        if (eventId != null) {
+            val approveIntent = Intent(context, NotificationActionReceiver::class.java).apply {
+                action = "APPROVE_EVENT"
+                putExtra("event_id", eventId)
+            }
+            val approvePendingIntent = android.app.PendingIntent.getBroadcast(
+                context, eventId.hashCode(), approveIntent, 
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.addAction(android.R.drawable.checkbox_on_background, "Approve", approvePendingIntent)
+        }
 
         try {
-            notificationManager.notify(NOTIFICATION_ID, notification)
+            notificationManager.notify(eventId?.hashCode() ?: NOTIFICATION_ID, builder.build())
         } catch (e: SecurityException) {
             Log.e("SmsReceiver", "Permission missing for notification", e)
         }

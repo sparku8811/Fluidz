@@ -41,6 +41,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".NotificationActionReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="APPROVE_EVENT" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

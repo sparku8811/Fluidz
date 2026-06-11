@@ -18,7 +18,9 @@ import androidx.compose.ui.unit.sp
 fun AppointmentsScreen(
     title: String,
     appointments: List<Appointment>,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onApprove: (String) -> Unit = {},
+    onEdit: (String) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -55,7 +57,11 @@ fun AppointmentsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(appointments) { appointment ->
-                        AppointmentItem(appointment)
+                        AppointmentItem(
+                            appointment = appointment,
+                            onApprove = onApprove,
+                            onEdit = onEdit
+                        )
                     }
                 }
             }
@@ -64,19 +70,52 @@ fun AppointmentsScreen(
 }
 
 @Composable
-fun AppointmentItem(appointment: Appointment) {
+fun AppointmentItem(
+    appointment: Appointment,
+    onApprove: (String) -> Unit,
+    onEdit: (String) -> Unit
+) {
+    val alpha = if (appointment.isPending) 0.6f else 1.0f
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.9f)),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = alpha * 0.9f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = appointment.title,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.Black
-            )
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text(
+                    text = appointment.title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.Black,
+                    modifier = Modifier.weight(1f)
+                )
+                if (appointment.isPending) {
+                    Surface(
+                        color = Color(0xFFCC5500),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            "DRAFT", 
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            fontSize = 10.sp, 
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+
+            if (appointment.conflictWith != null) {
+                Text(
+                    "⚠️ Conflict with: ${appointment.conflictWith}",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             Text(
                 text = appointment.dateTime,
                 fontSize = 14.sp,
@@ -94,6 +133,36 @@ fun AppointmentItem(appointment: Appointment) {
                 fontSize = 14.sp,
                 color = Color.DarkGray
             )
+
+            if (appointment.isPending) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { onApprove(appointment.id) },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF003366))
+                    ) {
+                        Text("Approve", fontSize = 12.sp, color = Color.White)
+                    }
+                    OutlinedButton(
+                        onClick = { onEdit(appointment.id) },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Edit", fontSize = 12.sp, color = Color.Black)
+                    }
+                }
+            } else if (!appointment.meetingLink.isNullOrEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+                Button(
+                    onClick = { uriHandler.openUri(appointment.meetingLink) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF003366)),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("JOIN MEETING", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
+            }
         }
     }
 }

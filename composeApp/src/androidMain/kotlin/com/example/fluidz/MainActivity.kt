@@ -1,5 +1,6 @@
 package com.example.fluidz
 
+import android.content.ContentUris
 import android.content.Intent
 import android.os.Bundle
 import android.provider.CalendarContract
@@ -75,7 +76,8 @@ class MainActivity : FragmentActivity() {
                         )
                     },
                     appointmentsContent = { title, type, onBack ->
-                        val appointments by produceState(initialValue = emptyList<Appointment>(), key1 = type) {
+                        var refreshTrigger by remember { mutableStateOf(0) }
+                        val appointments by produceState(initialValue = emptyList<Appointment>(), key1 = type, key2 = refreshTrigger) {
                             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                                 value = AndroidCalendarManager.getFluidzAppointments(this@MainActivity, type)
                             }
@@ -83,7 +85,19 @@ class MainActivity : FragmentActivity() {
                         AppointmentsScreen(
                             title = title,
                             appointments = appointments,
-                            onBackClick = onBack
+                            onBackClick = onBack,
+                            onApprove = { id ->
+                                if (AndroidCalendarManager.approveFluidzEvent(this@MainActivity, id)) {
+                                    Toast.makeText(this@MainActivity, "Event Approved!", Toast.LENGTH_SHORT).show()
+                                    refreshTrigger++
+                                }
+                            },
+                            onEdit = { id ->
+                                val intent = Intent(Intent.ACTION_EDIT).apply {
+                                    data = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, id.toLong())
+                                }
+                                startActivity(intent)
+                            }
                         )
                     },
                     dashboardCounts = dashboardCounts
