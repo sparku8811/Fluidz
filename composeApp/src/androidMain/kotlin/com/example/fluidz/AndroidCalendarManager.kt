@@ -92,6 +92,19 @@ object AndroidCalendarManager {
         }
     }
 
+    fun deleteFluidzEvent(context: Context, title: String, dateMillis: Long): Boolean {
+        val existingId = findExistingEventId(context, title, dateMillis)
+        if (existingId == -1L) return false
+
+        return try {
+            val deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, existingId)
+            context.contentResolver.delete(deleteUri, null, null)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun findExistingEventId(context: Context, title: String, startTimeMillis: Long): Long {
         val startWindow = startTimeMillis - (12 * 60 * 60 * 1000)
         val endWindow = startTimeMillis + (12 * 60 * 60 * 1000)
