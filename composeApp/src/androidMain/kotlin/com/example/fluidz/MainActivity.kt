@@ -44,8 +44,12 @@ class MainActivity : FragmentActivity() {
                         value = AndroidCalendarManager.getDashboardCounts(this@MainActivity)
                     }
                 }
+                val sharedPrefs = remember { SecurityUtils.getEncryptedSharedPreferences(this@MainActivity) }
+                val userEmail = sharedPrefs.getString("user_email", "veteran@example.com") ?: "veteran@example.com"
+                
                 App(
                     isDarkMode = isDarkMode,
+                    userEmail = userEmail,
                     onAddEvent = {
                         val intent = Intent(Intent.ACTION_INSERT).apply {
                             data = CalendarContract.Events.CONTENT_URI

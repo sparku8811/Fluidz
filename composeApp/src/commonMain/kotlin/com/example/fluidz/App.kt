@@ -6,9 +6,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MedicalServices
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Vaccines
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,12 +35,15 @@ import androidx.compose.ui.unit.sp
 import com.example.fluidz.ui.theme.FluidzTheme
 import fluidz.composeapp.generated.resources.Res
 import fluidz.composeapp.generated.resources.ic_fluidz_logo
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(
     isDarkMode: Boolean,
+    userEmail: String = "veteran@example.com",
+    accountTier: String = "Fluidz Beta Member",
     onAddEvent: () -> Unit = {},
     onAddAppointment: () -> Unit = {},
     onGoogleSignIn: () -> Unit = {},
@@ -38,32 +53,141 @@ fun App(
     dashboardCounts: Map<AppointmentType, Int> = emptyMap(),
 ) {
     var currentScreen by remember { mutableStateOf("start") }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     FluidzTheme(darkTheme = isDarkMode) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            gesturesEnabled = currentScreen != "start" && currentScreen != "signup",
+            drawerContent = {
+                ModalDrawerSheet(
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                    drawerContainerColor = Color.White
+                ) {
+                    // Drawer Header
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF003366))
+                            .padding(24.dp)
+                    ) {
+                        Column {
+                            Surface(
+                                modifier = Modifier.size(48.dp),
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                                color = Color.White.copy(alpha = 0.2f)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = userEmail,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = accountTier,
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Menu Items - Grouped by priority
+                    NavigationDrawerItem(
+                        label = { Text("Dashboard", fontWeight = FontWeight.Bold) },
+                        selected = currentScreen == "main",
+                        onClick = {
+                            currentScreen = "main"
+                            scope.launch { drawerState.close() }
+                        },
+                        icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                    
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
+
+                    NavigationDrawerItem(
+                        label = { Text("Settings") },
+                        selected = currentScreen == "settings",
+                        onClick = {
+                            currentScreen = "settings"
+                            scope.launch { drawerState.close() }
+                        },
+                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Help & Support") },
+                        selected = currentScreen == "help",
+                        onClick = {
+                            currentScreen = "help"
+                            scope.launch { drawerState.close() }
+                        },
+                        icon = { Icon(Icons.AutoMirrored.Filled.Help, contentDescription = null) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("About Fluidz") },
+                        selected = currentScreen == "about",
+                        onClick = {
+                            currentScreen = "about"
+                            scope.launch { drawerState.close() }
+                        },
+                        icon = { Icon(Icons.Default.Info, contentDescription = null) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                    
+                    Spacer(modifier = Modifier.weight(1f))
+                    
+                    NavigationDrawerItem(
+                        label = { Text("Privacy Policy", fontSize = 12.sp) },
+                        selected = currentScreen == "privacy",
+                        onClick = {
+                            currentScreen = "privacy"
+                            scope.launch { drawerState.close() }
+                        },
+                        icon = { Icon(Icons.Default.PrivacyTip, contentDescription = null, modifier = Modifier.size(16.dp)) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
         ) {
-            when (currentScreen) {
-                "start" -> StartScreen { currentScreen = "main" }
-                "main" -> MainScreen(
-                    onNavigate = { screen -> currentScreen = screen },
-                    onAddEvent = onAddEvent,
-                    onAddAppointment = onAddAppointment,
-                    counts = dashboardCounts
-                )
-                "settings" -> settingsContent { currentScreen = "main" }
-                "about" -> AboutScreen { currentScreen = "main" }
-                "privacy" -> PrivacyPolicyScreen { currentScreen = "main" }
-                "help" -> HelpScreen { currentScreen = "main" }
-                "upcoming_appointments" -> appointmentsContent("Upcoming Appointments", AppointmentType.MEDICAL, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
-                "upcoming_events" -> appointmentsContent("Upcoming Events", AppointmentType.EVENT, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
-                "upcoming_prescriptions" -> appointmentsContent("Prescription Pickups", AppointmentType.PRESCRIPTION, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
-                "signup" -> SignUpScreen(
-                    onBackClick = { currentScreen = "start" },
-                    onGoogleSignIn = onGoogleSignIn,
-                    onAppleSignIn = onAppleSignIn,
-                )
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background,
+            ) {
+                when (currentScreen) {
+                    "start" -> StartScreen { currentScreen = "main" }
+                    "main" -> MainScreen(
+                        onNavigate = { screen -> currentScreen = screen },
+                        onAddEvent = onAddEvent,
+                        onAddAppointment = onAddAppointment,
+                        counts = dashboardCounts,
+                        onOpenMenu = { scope.launch { drawerState.open() } }
+                    )
+                    "settings" -> settingsContent { currentScreen = "main" }
+                    "about" -> AboutScreen { currentScreen = "main" }
+                    "privacy" -> PrivacyPolicyScreen { currentScreen = "main" }
+                    "help" -> HelpScreen { currentScreen = "main" }
+                    "upcoming_appointments" -> appointmentsContent("Upcoming Appointments", AppointmentType.MEDICAL, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
+                    "upcoming_events" -> appointmentsContent("Upcoming Events", AppointmentType.EVENT, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
+                    "upcoming_prescriptions" -> appointmentsContent("Prescription Pickups", AppointmentType.PRESCRIPTION, { currentScreen = "main" }) { reply -> /* MainActivity logic */ }
+                    "signup" -> SignUpScreen(
+                        onBackClick = { currentScreen = "start" },
+                        onGoogleSignIn = onGoogleSignIn,
+                        onAppleSignIn = onAppleSignIn,
+                    )
+                }
             }
         }
     }
@@ -119,10 +243,9 @@ fun MainScreen(
     onNavigate: (String) -> Unit,
     onAddEvent: () -> Unit,
     onAddAppointment: () -> Unit,
-    counts: Map<AppointmentType, Int>
+    counts: Map<AppointmentType, Int>,
+    onOpenMenu: () -> Unit
 ) {
-    var showMenu by remember { mutableStateOf(value = false) }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -147,47 +270,12 @@ fun MainScreen(
                     titleContentColor = Color.Black
                 ),
                 navigationIcon = {
-                    Box {
-                        IconButton(onClick = { showMenu = !showMenu }) {
-                            Icon(
-                                Icons.Default.MoreVert, 
-                                contentDescription = "Menu",
-                                tint = Color.Black // Black Icon
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Settings", fontWeight = FontWeight.Bold, color = Color.Black) },
-                                onClick = { 
-                                    showMenu = false
-                                    onNavigate("settings")
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("About", fontWeight = FontWeight.Bold, color = Color.Black) },
-                                onClick = { 
-                                    showMenu = false
-                                    onNavigate("about")
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Help", fontWeight = FontWeight.Bold, color = Color.Black) },
-                                onClick = { 
-                                    showMenu = false
-                                    onNavigate("help")
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Privacy Policy", fontWeight = FontWeight.Bold, color = Color.Black) },
-                                onClick = { 
-                                    showMenu = false
-                                    onNavigate("privacy")
-                                }
-                            )
-                        }
+                    IconButton(onClick = onOpenMenu) {
+                        Icon(
+                            Icons.Default.Menu, 
+                            contentDescription = "Menu",
+                            tint = Color.Black
+                        )
                     }
                 }
             )

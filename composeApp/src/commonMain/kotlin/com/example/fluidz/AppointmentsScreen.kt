@@ -8,7 +8,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,25 +82,49 @@ fun AppointmentItem(
     onReply: (String) -> Unit,
     onEdit: (String) -> Unit
 ) {
-    val alpha = if (appointment.isPending) 0.6f else 1.0f
+    val primaryBlue = Color(0xFF003366)
+    val burntOrange = Color(0xFFCC5500)
+    val draftBgColor = primaryBlue.copy(alpha = 0.15f)
+    val verifiedBgColor = Color.White.copy(alpha = 0.9f)
     
+    val titleColor = if (appointment.isPending) Color(0xFF333333) else Color.Black
+    val detailColor = if (appointment.isPending) Color(0xFF555555) else Color.DarkGray
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = alpha * 0.9f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (appointment.isPending) {
+                    Modifier.drawBehind {
+                        val stroke = Stroke(
+                            width = 2.dp.toPx(),
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                        )
+                        drawRoundRect(
+                            color = primaryBlue,
+                            style = stroke,
+                            cornerRadius = CornerRadius(12.dp.toPx())
+                        )
+                    }
+                } else Modifier
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = if (appointment.isPending) draftBgColor else verifiedBgColor
+        ),
+        elevation = if (appointment.isPending) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text(
                     text = appointment.title,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.Black,
+                    fontWeight = if (appointment.isPending) FontWeight.Bold else FontWeight.ExtraBold,
+                    color = titleColor,
                     modifier = Modifier.weight(1f)
                 )
                 if (appointment.isPending) {
                     Surface(
-                        color = Color(0xFFCC5500),
+                        color = burntOrange,
                         shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
                     ) {
                         Text(
@@ -104,7 +132,7 @@ fun AppointmentItem(
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                             fontSize = 10.sp, 
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = Color.Black // High-contrast black on orange
                         )
                     }
                 }
@@ -123,18 +151,18 @@ fun AppointmentItem(
                 text = appointment.dateTime,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFCC5500) // Burnt Orange
+                color = if (appointment.isPending) detailColor else burntOrange
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Location: ${appointment.location}",
                 fontSize = 14.sp,
-                color = Color.DarkGray
+                color = detailColor
             )
             Text(
                 text = "With: ${appointment.provider}",
                 fontSize = 14.sp,
-                color = Color.DarkGray
+                color = detailColor
             )
 
             if (appointment.isPending) {
@@ -146,7 +174,7 @@ fun AppointmentItem(
                             onReply(appointment.provider)
                         },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF003366))
+                        colors = ButtonDefaults.buttonColors(containerColor = primaryBlue)
                     ) {
                         Text("Approve & Reply", fontSize = 12.sp, color = Color.White)
                     }
@@ -163,7 +191,7 @@ fun AppointmentItem(
                 Button(
                     onClick = { uriHandler.openUri(appointment.meetingLink) },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF003366)),
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryBlue),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text("JOIN MEETING", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
