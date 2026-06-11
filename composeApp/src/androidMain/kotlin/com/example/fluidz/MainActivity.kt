@@ -39,7 +39,9 @@ class MainActivity : FragmentActivity() {
             } else {
                 val authManager = remember { AuthManager(this@MainActivity) }
                 val dashboardCounts by produceState(initialValue = emptyMap<AppointmentType, Int>(), key1 = isAppLocked) {
-                    value = AndroidCalendarManager.getDashboardCounts(this@MainActivity)
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        value = AndroidCalendarManager.getDashboardCounts(this@MainActivity)
+                    }
                 }
                 App(
                     isDarkMode = isDarkMode,
@@ -74,7 +76,9 @@ class MainActivity : FragmentActivity() {
                     },
                     appointmentsContent = { title, type, onBack ->
                         val appointments by produceState(initialValue = emptyList<Appointment>(), key1 = type) {
-                            value = AndroidCalendarManager.getFluidzAppointments(this@MainActivity, type)
+                            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                value = AndroidCalendarManager.getFluidzAppointments(this@MainActivity, type)
+                            }
                         }
                         AppointmentsScreen(
                             title = title,

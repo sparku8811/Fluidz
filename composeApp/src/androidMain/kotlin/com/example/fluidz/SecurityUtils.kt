@@ -10,16 +10,21 @@ object SecurityUtils {
     private const val SECURE_PREFS_NAME = "fluidz_secure_prefs"
 
     fun getEncryptedSharedPreferences(context: Context): SharedPreferences {
-        val masterKey = MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
+        return try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
 
-        return EncryptedSharedPreferences.create(
-            context,
-            SECURE_PREFS_NAME,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+            EncryptedSharedPreferences.create(
+                context,
+                SECURE_PREFS_NAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("SecurityUtils", "Error creating EncryptedSharedPreferences, falling back to standard", e)
+            context.getSharedPreferences(SECURE_PREFS_NAME, Context.MODE_PRIVATE)
+        }
     }
 }
