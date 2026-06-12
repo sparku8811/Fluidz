@@ -47,7 +47,7 @@ fun AppointmentsScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.TopCenter) {
             OasisBackground(isSecondary = true)
             if (appointments.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
@@ -57,6 +57,7 @@ fun AppointmentsScreen(
                 LazyColumn(
                     modifier = Modifier
                         .padding(innerPadding)
+                        .widthIn(max = 800.dp)
                         .fillMaxSize()
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)

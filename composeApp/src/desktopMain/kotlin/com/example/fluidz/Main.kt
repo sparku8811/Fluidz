@@ -1,14 +1,25 @@
 package com.example.fluidz
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 
 fun main() = application {
+    val windowState = rememberWindowState(
+        width = 1024.dp,
+        height = 768.dp
+    )
+
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Fluidz - For Veterans, By Veterans"
+        title = "Fluidz - For Veterans, By Veterans",
+        state = windowState
     ) {
+        // Enforce minimum size for accessibility on high-scaling displays
+        window.minimumSize = java.awt.Dimension(800, 600)
+
         val authManager = remember { AuthManager() }
         val dashboardCounts by produceState(initialValue = emptyMap<AppointmentType, Int>()) {
             value = DesktopCalendarManager.getDashboardCounts()

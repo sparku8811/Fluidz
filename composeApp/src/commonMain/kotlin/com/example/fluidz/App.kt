@@ -49,7 +49,7 @@ fun App(
             gesturesEnabled = currentScreen != "start" && currentScreen != "signup",
             drawerContent = {
                 ModalDrawerSheet(
-                    modifier = Modifier.fillMaxWidth(0.8f),
+                    modifier = Modifier.widthIn(max = 400.dp).fillMaxWidth(0.85f),
                     drawerContainerColor = Color.White
                 ) {
                     // Drawer Header
@@ -182,34 +182,38 @@ fun App(
 
 @Composable
 fun StartScreen(onStartClick: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         FluidBackground()
         Column(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier
+                .widthIn(max = 600.dp)
+                .padding(32.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Image(
                 painter = painterResource(Res.drawable.ic_fluidz_logo),
                 contentDescription = "Fluidz Logo",
-                modifier = Modifier.size(200.dp),
+                modifier = Modifier.sizeIn(maxWidth = 200.dp, maxHeight = 200.dp).fillMaxWidth(0.5f).aspectRatio(1f),
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Fluidz",
                 fontSize = 48.sp,
-                fontWeight = FontWeight.ExtraBold, // Bolded Subject
-                color = Color.Black // Black Lettering
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = onStartClick,
-                modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCC5500)) // Burnt Orange
+                modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(0.8f).height(56.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCC5500))
             ) {
                 Text(
                     text = "START", 
-                    fontWeight = FontWeight.ExtraBold, // Bolded Subject
-                    color = Color.Black // Black Lettering
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.Black
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -268,10 +272,14 @@ fun MainScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             OasisBackground()
             Column(
-                modifier = Modifier.padding(innerPadding).fillMaxSize().verticalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .widthIn(max = 800.dp)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -466,13 +474,15 @@ fun SignUpScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             OasisBackground(isSecondary = true)
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
+                    .widthIn(max = 600.dp)
                     .padding(16.dp)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
