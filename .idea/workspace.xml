@@ -10,14 +10,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0754a348-7980-4b0e-87da-aa8318140515" name="Changes" comment="1">
-      <change afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/com/example/fluidz/AuthManager.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/com/example/fluidz/DesktopCalendarManager.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/com/example/fluidz/Main.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deploy_desktop.ps1" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/androidMain/res/drawable/ic_fluidz_logo.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/render_logo.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/render_poster.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/composeApp_desktop.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/composeApp_desktop.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/example/fluidz/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/example/fluidz/App.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

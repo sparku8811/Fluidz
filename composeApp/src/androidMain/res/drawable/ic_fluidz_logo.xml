@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Stylized Drop Shape (Deep Blue) -->
+    <path
+        android:fillColor="#003366"
+        android:pathData="M100,20
+        C100,20 175,100 175,145
+        A75,75 0 1,1 25,145
+        C25,100 100,20 100,20
+        Z" />
+
+    <!-- Minimalist 'Z' representing Fluidz (White) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="14"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M75,115 L125,115 L75,155 L125,155" />
+
+    <!-- Accent Highlight for 'Fluidity' (Sky Blue) -->
+    <path
+        android:fillColor="#64B5F6"
+        android:pathData="M140,80
+        C145,95 140,110 130,120
+        C135,110 135,95 130,85
+        Z" />
+</vector>
